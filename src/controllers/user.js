@@ -50,12 +50,20 @@ const SIGN_UP = async (req, res) => {
     const jwtToken = jwt.sign(
       { email: user.email, userId: user.id },
       process.env.JWT_TOKEN,
-      { expiresIn: "12h" }
+      { expiresIn: "2h" }
+    );
+
+    const jwtTokenRefresh = jwt.sign(
+      { email: user.email, userId: user.id },
+      process.env.JWT_TOKEN,
+      { expiresIn: "24h" }
     );
 
     return res.status(200).json({
       message: "Signed up successfully",
       response: response,
+      jwt_token: jwtToken,
+      jwt_refresh_token: jwtTokenRefresh,
     });
   } catch (err) {
     console.log(err);
@@ -66,4 +74,79 @@ const SIGN_UP = async (req, res) => {
   }
 };
 
-export { SIGN_UP };
+const LOGIN = async (req, res) => {
+  try {
+    const user = await userModel.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Bad email or password" });
+    }
+
+    const comparePassword = bcrypt.compareSync(
+      req.body.password,
+      user.password
+    );
+
+    if (!comparePassword) {
+      return res.status(401).json({ message: "Bad email or password" });
+    }
+
+    const jwtToken = jwt.sign(
+      { email: user.email, userId: user.id },
+      process.env.JWT_TOKEN,
+      { expiresIn: "2h" }
+    );
+
+    const jwtTokenRefresh = jwt.sign(
+      { email: user.email, userId: user.id },
+      process.env.JWT_TOKEN,
+      { expiresIn: "24h" }
+    );
+
+    return res.status(200).json({
+      message: "Loged in successfully",
+      jwt_token: jwtToken,
+      jwt_refresh_token: jwtTokenRefresh,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
+const GET_NEW_TOKEN = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Bad token",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_TOKEN);
+
+    const jwtToken = jwt.sign(
+      { email: decoded.email, userId: decoded.userId },
+      process.env.JWT_TOKEN,
+      { expiresIn: "2h" }
+    );
+
+    return res.status(200).json({
+      message: "New token",
+      jwt_token: jwtToken,
+      current_jwt_refresh_token: req.headers.authorization,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
+export { SIGN_UP, LOGIN, GET_NEW_TOKEN };
