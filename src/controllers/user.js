@@ -188,6 +188,49 @@ const USER_BY_ID = async (req, res) => {
   }
 };
 
+const ALL_USERS_WITH_TICKETS = async (req, res) => {
+  try {
+    const data = await userModel
+      .find({ bought_tickets: { $ne: [] } })
+      .select("name id bought_tickets")
+      .sort({ name: 1 });
+
+    return res.status(200).json({
+      users: data,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
+const USER_WITH_TICKETS_BY_ID = async (req, res) => {
+  try {
+    const data = await userModel
+      .find({ id: req.params.id, bought_tickets: { $ne: [] } })
+      .select("name id bought_tickets");
+
+    if (!data || data.length === 0) {
+      return res.status(400).json({
+        message: "user does not exist or does not have tickets",
+      });
+    }
+
+    return res.status(200).json({
+      users: data,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
 // updating data for testing purposes
 const UPDATE_BY_ID = async (req, res) => {
   try {
@@ -218,4 +261,13 @@ const UPDATE_BY_ID = async (req, res) => {
   }
 };
 
-export { SIGN_UP, LOGIN, GET_NEW_TOKEN, ALL_USERS, USER_BY_ID, UPDATE_BY_ID };
+export {
+  SIGN_UP,
+  LOGIN,
+  GET_NEW_TOKEN,
+  ALL_USERS,
+  USER_BY_ID,
+  UPDATE_BY_ID,
+  ALL_USERS_WITH_TICKETS,
+  USER_WITH_TICKETS_BY_ID,
+};

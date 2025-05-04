@@ -30,8 +30,6 @@ const BUY_TICKET = async (req, res) => {
   try {
     const user = await userModel.findOne({ id: req.body.user_id });
     const ticket = await ticketModel.findOne({ id: req.body.ticket_id });
-    console.log(user);
-    console.log(ticket);
 
     if (!user || !ticket) {
       return res.status(404).json({ message: "User or ticket not found" });
