@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import mongoose from "mongoose";
 import userRouter from "./src/routes/user.js";
+import ticketRouter from "./src/routes/ticket.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ mongoose
   });
 
 app.use(userRouter);
+app.use(ticketRouter);
 
 app.use((req, res) => {
   return res.status(404).json({

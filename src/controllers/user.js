@@ -43,6 +43,7 @@ const SIGN_UP = async (req, res) => {
       name: userName,
       email: req.body.email,
       password: passwordHash,
+      money_balance: req.body.money_balance,
     });
 
     const response = await user.save();
@@ -167,9 +168,7 @@ const ALL_USERS = async (req, res) => {
 
 const USER_BY_ID = async (req, res) => {
   try {
-    const data = await userModel
-      .findOne({ id: req.params.id })
-      .select("name bought_tickets");
+    const data = await userModel.findOne({ id: req.params.id }).select("name");
 
     if (!data) {
       return res.status(404).json({
@@ -189,4 +188,34 @@ const USER_BY_ID = async (req, res) => {
   }
 };
 
-export { SIGN_UP, LOGIN, GET_NEW_TOKEN, ALL_USERS, USER_BY_ID };
+// updating data for testing purposes
+const UPDATE_BY_ID = async (req, res) => {
+  try {
+    const data = await userModel.findOne({ id: req.params.id });
+
+    if (!data) {
+      return res.status(404).json({
+        message: `user with id ${req.params.id} does not exist`,
+      });
+    }
+
+    const response = await userModel.findOneAndUpdate(
+      { id: req.params.id },
+      { ...req.body },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: "updated",
+      response: response,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
+export { SIGN_UP, LOGIN, GET_NEW_TOKEN, ALL_USERS, USER_BY_ID, UPDATE_BY_ID };
