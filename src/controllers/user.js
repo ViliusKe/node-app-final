@@ -210,10 +210,10 @@ const ALL_USERS_WITH_TICKETS = async (req, res) => {
 const USER_WITH_TICKETS_BY_ID = async (req, res) => {
   try {
     const data = await userModel
-      .find({ id: req.params.id, bought_tickets: { $ne: [] } })
+      .findOne({ id: req.params.id, bought_tickets: { $ne: [] } })
       .select("name id bought_tickets");
 
-    if (!data || data.length === 0) {
+    if (!data) {
       return res.status(400).json({
         message: "user does not exist or does not have tickets",
       });
