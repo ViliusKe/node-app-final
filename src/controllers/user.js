@@ -149,4 +149,44 @@ const GET_NEW_TOKEN = async (req, res) => {
   }
 };
 
-export { SIGN_UP, LOGIN, GET_NEW_TOKEN };
+const ALL_USERS = async (req, res) => {
+  try {
+    const data = await userModel.find().select("name id").sort({ name: 1 });
+
+    return res.status(200).json({
+      users: data,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
+const USER_BY_ID = async (req, res) => {
+  try {
+    const data = await userModel
+      .findOne({ id: req.params.id })
+      .select("name bought_tickets");
+
+    if (!data) {
+      return res.status(404).json({
+        message: `User with id ${req.params.id} not found`,
+      });
+    }
+
+    return res.status(200).json({
+      user: data,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+      message: "Problems occured",
+    });
+  }
+};
+
+export { SIGN_UP, LOGIN, GET_NEW_TOKEN, ALL_USERS, USER_BY_ID };
